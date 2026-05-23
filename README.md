@@ -55,7 +55,7 @@
 
 ```bash
 pipx install pbi-cli-tool    # 1. Install (handles PATH automatically)
-pbi-cli skills install       # 2. Register Claude Code skills (one-time setup)
+pbi-cli skills install       # 2. Register Claude Code skills (default target)
 pbi connect                  # 3. Connect to Power BI Desktop
 ```
 
@@ -201,6 +201,22 @@ Bundled DLLs ship inside the Python package (`pbi_cli/dlls/`).
 ## Skills
 
 After running `pbi-cli skills install`, Claude Code discovers **13 Power BI skills**. Each skill teaches Claude a different area. You don't need to memorize commands.
+
+Agent targets for skill installation:
+
+```bash
+# Existing Claude default
+pbi-cli skills install
+
+# Codex
+pbi-cli skills install --agent codex
+
+# Both
+pbi-cli skills install --agent all
+```
+
+Codex skills are installed under `~/.agents/skills`. If skills are not discovered immediately, restart Codex. Semantic model workflows still require the existing pbi-cli prerequisites (Windows + Power BI Desktop where applicable).
+
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/MinaSaad1/pbi-cli/master/assets/skills-hub.svg" alt="12 Skills" width="850"/>

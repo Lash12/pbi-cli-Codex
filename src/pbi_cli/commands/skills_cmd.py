@@ -81,11 +81,17 @@ def skills_install(skill_name: str | None, force: bool, yes: bool, agent: str) -
         click.echo("This command will install Power BI skills for selected target(s):\n")
         for target in targets:
             if isinstance(target, ClaudeSkillTarget):
-                click.echo(f"  {'~/.claude/skills/power-bi-*/':<52} copy {len(to_install)} skill folder(s)")
+                click.echo(
+                    f"  {'~/.claude/skills/power-bi-*/':<52} "
+                    f"copy {len(to_install)} skill folder(s)"
+                )
                 click.echo(f"  {'~/.claude/CLAUDE.md':<52} append pbi-cli skill trigger block")
                 click.echo("\nThis affects ALL Claude Code sessions, not just Power BI work.\n")
             else:
-                click.echo(f"  {'~/.agents/skills/power-bi-*/':<52} copy {len(to_install)} skill folder(s)")
+                click.echo(
+                    f"  {'~/.agents/skills/power-bi-*/':<52} "
+                    f"copy {len(to_install)} skill folder(s)"
+                )
 
         if not click.confirm("\nProceed?", default=False):
             click.echo("Aborted.")
@@ -107,7 +113,8 @@ def skills_install(skill_name: str | None, force: bool, yes: bool, agent: str) -
 
         target.post_install(installed_by_target[target.name])
         click.echo(
-            f"\n[{target.name}] {installed_by_target[target.name]} skill(s) installed to {target.target_dir}",
+            f"\n[{target.name}] {installed_by_target[target.name]} "
+            f"skill(s) installed to {target.target_dir}",
             err=True,
         )
 

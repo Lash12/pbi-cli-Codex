@@ -4,6 +4,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
+from pbi_cli.core.skill_targets import CodexSkillTarget
 from pbi_cli.main_pbi_cli import cli
 
 
@@ -51,7 +52,10 @@ def test_list_codex_status(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     runner = CliRunner()
 
-    runner.invoke(cli, ["skills", "install", "--agent", "codex", "--yes", "--skill", "power-bi-dax"])
+    runner.invoke(
+        cli,
+        ["skills", "install", "--agent", "codex", "--yes", "--skill", "power-bi-dax"],
+    )
     result = runner.invoke(cli, ["skills", "list", "--agent", "codex"])
 
     assert result.exit_code == 0
@@ -64,8 +68,14 @@ def test_uninstall_codex_only(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     runner = CliRunner()
 
-    runner.invoke(cli, ["skills", "install", "--agent", "all", "--yes", "--skill", "power-bi-dax"])
-    result = runner.invoke(cli, ["skills", "uninstall", "--agent", "codex", "--skill", "power-bi-dax"])
+    runner.invoke(
+        cli,
+        ["skills", "install", "--agent", "all", "--yes", "--skill", "power-bi-dax"],
+    )
+    result = runner.invoke(
+        cli,
+        ["skills", "uninstall", "--agent", "codex", "--skill", "power-bi-dax"],
+    )
 
     assert result.exit_code == 0
     assert not (tmp_path / ".agents" / "skills" / "power-bi-dax").exists()
@@ -76,7 +86,10 @@ def test_force_overwrites_codex_folder(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     runner = CliRunner()
 
-    runner.invoke(cli, ["skills", "install", "--agent", "codex", "--yes", "--skill", "power-bi-dax"])
+    runner.invoke(
+        cli,
+        ["skills", "install", "--agent", "codex", "--yes", "--skill", "power-bi-dax"],
+    )
     skill_file = tmp_path / ".agents" / "skills" / "power-bi-dax" / "SKILL.md"
     skill_file.write_text("overwritten", encoding="utf-8")
 
@@ -87,3 +100,23 @@ def test_force_overwrites_codex_folder(monkeypatch, tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert "overwritten" not in skill_file.read_text(encoding="utf-8")
+
+
+def test_codex_install_copies_nested_skill_content(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    source_root = tmp_path / "bundled" / "power-bi-fake"
+    (source_root / "references").mkdir(parents=True)
+    (source_root / "scripts").mkdir(parents=True)
+    (source_root / "SKILL.md").write_text("# fake", encoding="utf-8")
+    (source_root / "references" / "example.md").write_text("reference", encoding="utf-8")
+    (source_root / "scripts" / "example.py").write_text("print('ok')", encoding="utf-8")
+
+    target = CodexSkillTarget()
+    installed = target.install_skill("power-bi-fake", source_root)
+
+    assert installed is True
+    assert (tmp_path / ".agents" / "skills" / "power-bi-fake" / "SKILL.md").exists()
+    assert (
+        tmp_path / ".agents" / "skills" / "power-bi-fake" / "references" / "example.md"
+    ).exists()
+    assert (tmp_path / ".agents" / "skills" / "power-bi-fake" / "scripts" / "example.py").exists()

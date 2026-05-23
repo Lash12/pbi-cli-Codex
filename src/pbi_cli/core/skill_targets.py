@@ -3,7 +3,6 @@ from __future__ import annotations
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,10 +25,7 @@ class SkillTarget:
             shutil.rmtree(target_skill_dir)
 
         target_skill_dir.parent.mkdir(parents=True, exist_ok=True)
-
-        with TemporaryDirectory() as tmpdir:
-            shutil.copytree(source, Path(tmpdir) / skill_name)
-            shutil.copytree(Path(tmpdir) / skill_name, target_skill_dir)
+        _copy_traversable_tree(source, target_skill_dir)
         return True
 
     def uninstall_skill(self, skill_name: str) -> bool:
@@ -66,6 +62,17 @@ class ClaudeSkillTarget(SkillTarget):
 class CodexSkillTarget(SkillTarget):
     def __init__(self) -> None:
         super().__init__(name="codex", target_dir=Path.home() / ".agents" / "skills")
+
+
+def _copy_traversable_tree(source: Traversable, destination: Path) -> None:
+    destination.mkdir(parents=True, exist_ok=True)
+    for item in source.iterdir():
+        target = destination / item.name
+        if item.is_dir():
+            _copy_traversable_tree(item, target)
+        elif item.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(item.read_bytes())
 
 
 def get_skill_targets(agent: str) -> list[SkillTarget]:

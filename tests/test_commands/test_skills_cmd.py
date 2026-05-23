@@ -21,7 +21,7 @@ def test_default_agent_is_claude(monkeypatch, tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert (tmp_path / ".claude" / "skills").exists()
-    assert not (tmp_path / ".agents" / "skills").exists()
+    assert not (tmp_path / ".codex" / "skills").exists()
 
 
 def test_codex_install_path_only(monkeypatch, tmp_path: Path) -> None:
@@ -32,7 +32,7 @@ def test_codex_install_path_only(monkeypatch, tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     for name in _skill_names():
-        assert (tmp_path / ".agents" / "skills" / name / "SKILL.md").exists()
+        assert (tmp_path / ".codex" / "skills" / name / "SKILL.md").exists()
     assert not (tmp_path / ".claude").exists()
 
 
@@ -44,7 +44,7 @@ def test_all_install_to_both(monkeypatch, tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     for name in _skill_names():
-        assert (tmp_path / ".agents" / "skills" / name / "SKILL.md").exists()
+        assert (tmp_path / ".codex" / "skills" / name / "SKILL.md").exists()
         assert (tmp_path / ".claude" / "skills" / name / "SKILL.md").exists()
 
 
@@ -78,7 +78,7 @@ def test_uninstall_codex_only(monkeypatch, tmp_path: Path) -> None:
     )
 
     assert result.exit_code == 0
-    assert not (tmp_path / ".agents" / "skills" / "power-bi-dax").exists()
+    assert not (tmp_path / ".codex" / "skills" / "power-bi-dax").exists()
     assert (tmp_path / ".claude" / "skills" / "power-bi-dax").exists()
 
 
@@ -90,7 +90,7 @@ def test_force_overwrites_codex_folder(monkeypatch, tmp_path: Path) -> None:
         cli,
         ["skills", "install", "--agent", "codex", "--yes", "--skill", "power-bi-dax"],
     )
-    skill_file = tmp_path / ".agents" / "skills" / "power-bi-dax" / "SKILL.md"
+    skill_file = tmp_path / ".codex" / "skills" / "power-bi-dax" / "SKILL.md"
     skill_file.write_text("overwritten", encoding="utf-8")
 
     result = runner.invoke(
@@ -115,8 +115,8 @@ def test_codex_install_copies_nested_skill_content(monkeypatch, tmp_path: Path) 
     installed = target.install_skill("power-bi-fake", source_root)
 
     assert installed is True
-    assert (tmp_path / ".agents" / "skills" / "power-bi-fake" / "SKILL.md").exists()
+    assert (tmp_path / ".codex" / "skills" / "power-bi-fake" / "SKILL.md").exists()
     assert (
-        tmp_path / ".agents" / "skills" / "power-bi-fake" / "references" / "example.md"
+        tmp_path / ".codex" / "skills" / "power-bi-fake" / "references" / "example.md"
     ).exists()
-    assert (tmp_path / ".agents" / "skills" / "power-bi-fake" / "scripts" / "example.py").exists()
+    assert (tmp_path / ".codex" / "skills" / "power-bi-fake" / "scripts" / "example.py").exists()

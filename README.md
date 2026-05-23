@@ -215,7 +215,7 @@ pbi-cli skills install --agent codex
 pbi-cli skills install --agent all
 ```
 
-Codex skills are installed under `~/.agents/skills`. If skills are not discovered immediately, restart Codex. Semantic model workflows still require the existing pbi-cli prerequisites (Windows + Power BI Desktop where applicable).
+Codex skills are installed under `~/.codex/skills`. If skills are not discovered immediately, restart Codex. Semantic model workflows still require the existing pbi-cli prerequisites (Windows + Power BI Desktop where applicable).
 
 
 <p align="center">

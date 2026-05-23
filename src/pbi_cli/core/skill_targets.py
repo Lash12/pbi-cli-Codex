@@ -41,6 +41,13 @@ class SkillTarget:
     def post_uninstall_all(self) -> None:
         return
 
+    def install_preview_lines(self, skill_count: int) -> list[str]:
+        """Return human-readable lines describing what install will do."""
+        return [
+            f"  {'~/' + str(self.target_dir.relative_to(Path.home()) / 'power-bi-*/'):<52} "
+            f"copy {skill_count} skill folder(s)"
+        ]
+
 
 class ClaudeSkillTarget(SkillTarget):
     def __init__(self) -> None:
@@ -58,10 +65,16 @@ class ClaudeSkillTarget(SkillTarget):
 
         remove_claude_md_snippet()
 
+    def install_preview_lines(self, skill_count: int) -> list[str]:
+        lines = super().install_preview_lines(skill_count)
+        lines.append(f"  {'~/.claude/CLAUDE.md':<52} append pbi-cli skill trigger block")
+        lines.append("\nThis affects ALL Claude Code sessions, not just Power BI work.\n")
+        return lines
+
 
 class CodexSkillTarget(SkillTarget):
     def __init__(self) -> None:
-        super().__init__(name="codex", target_dir=Path.home() / ".agents" / "skills")
+        super().__init__(name="codex", target_dir=Path.home() / ".codex" / "skills")
 
 
 def _copy_traversable_tree(source: Traversable, destination: Path) -> None:
@@ -83,4 +96,5 @@ def get_skill_targets(agent: str) -> list[SkillTarget]:
         return [CodexSkillTarget()]
     if normalized == "all":
         return [ClaudeSkillTarget(), CodexSkillTarget()]
+    # Guard for programmatic callers outside the CLI.
     raise ValueError(f"Unsupported agent target: {agent}")

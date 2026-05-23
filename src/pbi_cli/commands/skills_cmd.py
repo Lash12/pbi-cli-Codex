@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from pbi_cli.core.skill_targets import ClaudeSkillTarget, get_skill_targets
+from pbi_cli.core.skill_targets import get_skill_targets
 
 if TYPE_CHECKING:
     from importlib.abc import Traversable
@@ -80,18 +80,8 @@ def skills_install(skill_name: str | None, force: bool, yes: bool, agent: str) -
     if not yes:
         click.echo("This command will install Power BI skills for selected target(s):\n")
         for target in targets:
-            if isinstance(target, ClaudeSkillTarget):
-                click.echo(
-                    f"  {'~/.claude/skills/power-bi-*/':<52} "
-                    f"copy {len(to_install)} skill folder(s)"
-                )
-                click.echo(f"  {'~/.claude/CLAUDE.md':<52} append pbi-cli skill trigger block")
-                click.echo("\nThis affects ALL Claude Code sessions, not just Power BI work.\n")
-            else:
-                click.echo(
-                    f"  {'~/.agents/skills/power-bi-*/':<52} "
-                    f"copy {len(to_install)} skill folder(s)"
-                )
+            for line in target.install_preview_lines(len(to_install)):
+                click.echo(line)
 
         if not click.confirm("\nProceed?", default=False):
             click.echo("Aborted.")
